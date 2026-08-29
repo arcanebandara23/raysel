@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Will you? 🌹</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffdde1, #ffe6f0, #fff0f5);
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #stage {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #d6336c;
+    margin-bottom: 40px;
+    text-shadow: 0 2px 6px rgba(214,51,108,0.2);
+  }
+
+  .btn-row {
+    position: relative;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    height: 70px;
+  }
+
+  button {
+    padding: 16px 36px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #yesBtn {
+    background: #ff4d6d;
+    color: white;
+    box-shadow: 0 6px 14px rgba(255,77,109,0.4);
+  }
+  #yesBtn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 18px rgba(255,77,109,0.55);
+  }
+
+  #noBtn {
+    background: #f1f1f1;
+    color: #555;
+    position: fixed;
+    z-index: 10;
+  }
+
+  #noSpacer {
+    display: inline-block;
+    width: 100px;
+    height: 56px;
+    visibility: hidden;
+  }
+
+  #container {
+    display: none;
+    animation: fadeIn 0.6s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .yay {
+    font-size: 1.4rem;
+    color: #d6336c;
+    font-weight: bold;
+  }
+
+  .rose {
+    position: fixed;
+    top: -60px;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 5;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="question">
+    <h1>Heyyy!! can I still hold onto a little hope about you? 🥺</h1>
+    <div class="btn-row">
+      <button id="yesBtn" onclick="sayYes()">Yeahh!! Thats okayy🥹</button>
+      <span id="noSpacer"></span>
+    </div>
+  </div>
+
+  <div id="container">
+    <p class="yay">Yayyyy!!!!!!!!🌹😊</p>
+  </div>
+</div>
+
+<button id="noBtn">No🥺</button>
+
+<script>
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+
+  // Everything below works in VIEWPORT coordinates, matching position:fixed,
+  // so the collision math always lines up with what's actually on screen.
+
+  function placeInitial() {
+    const spacer = document.getElementById('noSpacer');
+    const rect = spacer.getBoundingClientRect();
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+  }
+
+  function moveNoButton() {
+    const btnW = noBtn.offsetWidth;
+    const btnH = noBtn.offsetHeight;
+
+    const padding = 10;
+    const maxX = window.innerWidth - btnW - padding;
+    const maxY = window.innerHeight - btnH - padding;
+
+    // yes button's box in viewport coords, with a safety margin around it
+    const yesRect = yesBtn.getBoundingClientRect();
+    const margin = 30;
+    const yesLeft = yesRect.left - margin;
+    const yesTop = yesRect.top - margin;
+    const yesRight = yesRect.right + margin;
+    const yesBottom = yesRect.bottom + margin;
+
+    let randX, randY, tries = 0;
+    do {
+      randX = padding + Math.random() * maxX;
+      randY = padding + Math.random() * maxY;
+      tries++;
+    } while (
+      tries < 100 &&
+      randX < yesRight && randX + btnW > yesLeft &&
+      randY < yesBottom && randY + btnH > yesTop
+    );
+
+    noBtn.style.left = randX + 'px';
+    noBtn.style.top = randY + 'px';
+  }
+
+  window.addEventListener('load', placeInitial);
+  window.addEventListener('resize', placeInitial);
+
+  // Runs whenever the cursor gets near/enters it
+  noBtn.addEventListener('mouseenter', moveNoButton);
+  noBtn.addEventListener('mousemove', moveNoButton);
+  // Also dodge on touch, for mobile
+  noBtn.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    moveNoButton();
+  });
+
+  function sayYes() {
+    document.getElementById('question').style.display = 'none';
+    document.getElementById('container').style.display = 'block';
+    noBtn.style.display = 'none';
+    launchRoses();
+  }
+
+  function launchRoses() {
+    const emojis = ['🌹', '🌸', '💐', '🌷'];
+    const count = 40;
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const rose = document.createElement('div');
+        rose.classList.add('rose');
+        rose.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        rose.style.left = Math.random() * 100 + 'vw';
+        rose.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+        rose.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+        document.body.appendChild(rose);
+        setTimeout(() => rose.remove(), 5000);
+      }, i * 90);
+    }
+    // keep a gentle continuous shower for a while
+    let elapsed = 0;
+    const interval = setInterval(() => {
+      const rose = document.createElement('div');
+      rose.classList.add('rose');
+      rose.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      rose.style.left = Math.random() * 100 + 'vw';
+      rose.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+      rose.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+      document.body.appendChild(rose);
+      setTimeout(() => rose.remove(), 5000);
+      elapsed += 300;
+      if (elapsed > 6000) clearInterval(interval);
+    }, 300);
+  }
+</script>
+
+</body>
+</html>
