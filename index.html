@@ -174,11 +174,24 @@
     moveNoButton();
   });
 
-  function sayYes() {
+    function sayYes() {
     document.getElementById('question').style.display = 'none';
     document.getElementById('container').style.display = 'block';
     noBtn.style.display = 'none';
     launchRoses();
+    notifyYes();
+  }
+
+  function notifyYes() {
+    // Sends a simple push notification to you via ntfy.sh — no personal
+    // or location data, just the fact that she clicked Yes.
+    const NTFY_TOPIC = 'arcane-date-yes-x7k2p';
+    fetch('https://ntfy.sh/' + NTFY_TOPIC, {
+      method: 'POST',
+      body: 'She said YES! 🌹💕'
+    }).catch(() => {
+      // fails silently if offline — doesn't affect her experience either way
+    });
   }
 
   function launchRoses() {
